@@ -1,9 +1,9 @@
 import os
 import streamlit as st
 import hashlib
-import sqlite3
+import sqlite3 #database 
 import google.generativeai as genai
-import pandas as pd
+import pandas as pd 
 import matplotlib.pyplot as plt
 import easyocr
 import random
@@ -14,7 +14,7 @@ import csv
 from dataclasses import dataclass
 
 # --- API CONFIGURATION ---
-GEMINI_API_KEY = "AIzaSyC8m3CgqI_Ljw8p6yemk63vKvIGZgkEJQs"  # Replace with your actual Gemini API key
+GEMINI_API_KEY = "AIzaSyATn8Td2rcCP4r6ph3a9VGwYjTRjQwdetg"  # Replace with your actual Gemini API key
 genai.configure(api_key=GEMINI_API_KEY)
 
 # --- Data Classes ---
@@ -102,7 +102,6 @@ def populate_doctors_and_hospitals():
         ("Dr. Pooja Singh", "Ophthalmologist", "Shankar Netralaya"),
         ("Dr. Kunal Mehta", "Rheumatologist", "Fortis Hospital"),
     ]
-
     hospitals = [
         ("Apollo Hospital", "Delhi"),
         ("Fortis Hospital", "Mumbai"),
@@ -456,235 +455,208 @@ def display_health_articles():
 def main():
     # Inline CSS Styling
     st.markdown(
-        """
-        <style>
-        /* General Styles */
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: body {background-color: rgba(201, 76, 76, 0.3);}
-            color: #263238;
-            line-height: 1.7;
-            margin: 0; /* Reset default body margin */
-            padding: 0;
-            overflow-x: hidden; /* Prevent horizontal scrolling */
-        }
+    """
+    <style>
+    /* General Styles */
+    body {
+        
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background: rgba(201, 76, 76, 0.3);}
+        color: #263238;
+        line-height: 1.7;
+        margin: 0; /* Reset default body margin */
+        padding: 0;
+        overflow-x: hidden; /* Prevent horizontal scrolling */
+    }
+    
+    .stApp {
+        max-width: 1200px;
+        margin: 20px auto; /* Increased margin */
+        padding: 30px; /* Increased padding */
+        background: rgba(255, 255, 255, 0.2); /* Enhanced Glass effect */
+        border-radius: 15px;
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); /* Subtle shadow */
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+    }
 
-        .stApp {
-            max-width: 1200px;
-            margin: 20px auto; /* Increased margin */
-            padding: 30px; /* Increased padding */
-            background: rgba(255, 255, 255, 0.1); /* Glass effect */
-            border-radius: 15px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1); /* Subtle shadow */
-            backdrop-filter: blur(5px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-        }
+    h1, h2, h3, h4, h5, h6 {
+        color: #D4AF37; /* Gold */
+        margin-bottom: 20px; /* Increased margin */
+        font-weight: 700;
+        text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.2);
+    }
 
-        h1, h2, h3, h4, h5, h6 {
-            color: #388e3c; /* Vivid green */
-            margin-bottom: 20px; /* Increased margin */
-            font-weight: 700;
-            text-shadow: 1px 1px 3px rgba(0,0,0,0.1);
-        }
+    a {
+        color: #03a9f4; /* Bright blue */
+        text-decoration: none;
+        transition: color 0.3s ease;
+    }
 
-        a {
-            color: #03a9f4; /* Bright blue */
-            text-decoration: none;
-            transition: color 0.3s ease;
-        }
+    a:hover {
+        color: #0277bd; /* Darker shade on hover */
+    }
 
-        a:hover {
-            color: #0277bd; /* Darker shade on hover */
-        }
+    /* Sidebar Styles */
+    [data-testid="stSidebar"] {
+        background-color: rgba(49, 49, 49, 0.8); /* Dark, translucent sidebar */
+        color: white;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Sidebar shadow */
+    }
 
-        /* Sidebar Styles */
-        [data-testid="stSidebar"] {
-            background-color: rgba(49, 49, 49, 0.8); /* Dark, translucent sidebar */
-            color: white;
-        }
+    .sidebar .sidebar-content {
+        padding: 20px; /* Sidebar content padding */
+    }
 
-        .sidebar .sidebar-content {
-            padding: 20px; /* Sidebar content padding */
-        }
+    [data-testid="stSidebar"] h1, [data-testid="stSidebar"] h2,
+    [data-testid="stSidebar"] h3, [data-testid="stSidebar"] h4 {
+        color: #FFD700; /* Light blue text in sidebar */
+        text-shadow: none; /* Remove text shadow from sidebar headings */
+    }
 
-        [data-testid="stSidebar"] h1, [data-testid="stSidebar"] h2,
-        [data-testid="stSidebar"] h3, [data-testid="stSidebar"] h4 {
-            color: #bbdefb; /* Light blue text in sidebar */
-            text-shadow: none; /* Remove text shadow from sidebar headings */
-        }
+    /* Input and Button Styles */
+    input[type="text"], input[type="password"], input[type="number"],
+    input[type="date"], input[type="time"], select, textarea {
+        width: 100%;
+        padding: 12px; /* Increased padding */
+        margin: 8px 0 20px; /* Increased margin */
+        border: none; /* Remove default border */
+        border-radius: 7px;
+        box-sizing: border-box;
+        font-size: 17px;
+        background: rgba(255, 255, 255, 0.7); /* Enhanced Glass input background */
+        color: #263238;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); /* Increased shadow */
+        transition: all 0.3s ease;
+    }
 
-        /* Input and Button Styles */
-        input[type="text"], input[type="password"], input[type="number"],
-        input[type="date"], input[type="time"], select, textarea {
-            width: 100%;
-            padding: 12px; /* Increased padding */
-            margin: 8px 0 20px; /* Increased margin */
-            border: none; /* Remove default border */
-            border-radius: 7px;
-            box-sizing: border-box;
-            font-size: 17px;
-            background: rgba(255, 255, 255, 0.5); /* Glass input background */
-            color: #263238;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-            transition: all 0.3s ease;
-        }
+    input:focus, textarea:focus, select:focus {
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4); /* Increased shadow */
+        outline: none; /* Remove outline on focus */
+        transform: scale(1.05);
+    }
 
-        input:focus, textarea:focus, select:focus {
-            box-shadow: 0 3px 7px rgba(0,0,0,0.3);
-            outline: none; /* Remove outline on focus */
-            transform: scale(1.02);
-        }
+    button {
+        background: linear-gradient(45deg, #4CAF50, #388e3c);
+        color: white;
+        padding: 14px 25px;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 19px;
+        transition: transform 0.3s, box-shadow 0.3s;
+        box-shadow: 0 12px 24px rgba(0, 0, 0, 0.4); /* Increased shadow */
+        width: 100%; /* Full-width buttons */
+        margin-bottom: 15px;
+        overflow: hidden;
+        position: relative;
+        z-index: 1;
+    }
 
-        button {
-            background: linear-gradient(45deg, #4CAF50, #388e3c);
-            color: white;
-            padding: 14px 25px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 19px;
-            transition: transform 0.2s, box-shadow 0.2s;
-            box-shadow: 0 3px 5px rgba(0,0,0,0.3);
-            width: 100%; /* Full-width buttons */
-            margin-bottom: 15px;
-            overflow: hidden;
-            position: relative;
-            z-index: 1;
-        }
+    button:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 16px 32px rgba(0, 0, 0, 0.5); /* Enhanced shadow */
+    }
 
-        button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 10px rgba(0,0,0,0.4);
-        }
+    /* Glowing effect on buttons */
+    button::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.5), transparent); /* Brighter glow */
+        transition: all 0.4s;
+        z-index: -1;
+    }
 
-        /* Glowing effect on buttons */
-        button::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
-            transition: all 0.4s;
-            z-index: -1;
-        }
+    button:hover::before {
+        left: 100%;
+    }
 
-        button:hover::before {
-            left: 100%;
-        }
+    /* Success and Error Messages */
+    .stSuccess, .stError {
+        padding: 15px;
+        margin-bottom: 20px;
+        border: 1px solid transparent;
+        border-radius: 7px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
 
-        /* Success and Error Messages */
-        .stSuccess, .stError {
-            padding: 15px;
-            margin-bottom: 20px;
-            border: 1px solid transparent;
-            border-radius: 7px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.15);
-        }
+    .stSuccess {
+        color: #1b5e20; /* Darker green for success */
+        background-color: #c8e6c9; /* Lighter green for success background */
+        border-color: #a5d6a7;
+    }
 
-        .stSuccess {
-            color: #1b5e20; /* Darker green for success */
-            background-color: #c8e6c9; /* Lighter green for success background */
-            border-color: #a5d6a7;
-        }
+    .stError {
+        color: #b71c1c; /* Darker red for error */
+        background-color: #ffcdd2; /* Lighter red for error background */
+        border-color: #f48fb1;
+    }
 
-        .stError {
-            color: #b71c1c; /* Darker red for error */
-            background-color: #ffcdd2; /* Lighter red for error background */
-            border-color: #f48fb1;
-        }
+    /* Main Title */
+    .main-title {
+        font-size: 3.5em; /* Even larger */
+        color: #D4AF37; /* Gold */
+        text-shadow: 0 0 20px #D4AF37, 0 0 30px #D4AF37;
+        text-align: center;
+        animation: neon-glow 2.5s infinite alternate;
+        margin-bottom: 40px;
+        text-transform: uppercase;
+    }
 
-        /* Main Title */
-        .main-title {
-            font-size: 3.2em; /* Even larger */
-            color: #689F38; /* Another shade of green */
-            text-shadow: 0 0 15px #689F38, 0 0 25px #689F38;
-            text-align: center;
-            animation: neon-glow 2.5s infinite alternate;
-            margin-bottom: 40px;
-            text-transform: uppercase;
-        }
+    /* Add glowing to h2, h3 and h4 tags */
+    h2 {
+        text-align: center;
+        color: #D4AF37; /* Gold */
+        text-shadow: 0 0 15px #FFD700, 0 0 25px #FFD700;
+    }
 
-        /* Add glowing to h2, h3 and h4 tags */
-        h2{
-                text-align: center;
-                color: #388e3c;
-                text-shadow: 0 0 10px #4CAF50, 0 0 20px #4CAF50;
+    h3 {
+        color: #D4AF37; /* Gold */
+        margin-bottom: 20px; /* Increased margin */
+        font-weight: 700;
+        text-shadow: 0 0 10px #FFD700, 0 0 20px #FFD700;
+    }
 
-        }
-        h3{
-                color: #42a5f5; /* Bright blue */
-                margin-bottom: 20px; /* Increased margin */
-                font-weight: 700;
-                text-shadow: 1px 1px 3px rgba(0,0,0,0.1);
-                 text-shadow: 0 0 10px #4CAF50, 0 0 20px #4CAF50;
-        }
+    /* Health Cards (Example for displaying health information) */
+    .health-card {
+        background-color: rgba(255, 255, 255, 0.8); /* Glass background for cards */
+        border-radius: 15px;
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3); /* Deeper shadow */
+        padding: 25px; /* Card padding */
+        margin-bottom: 25px;
+        border: 1px solid rgba(255, 255, 255, 0.4); /* Thicker border */
+        transition: transform 0.3s ease-in-out;
+        position: relative;
+        overflow: hidden;
+    }
 
-        /* Health Cards (Example for displaying health information) */
-        .health-card {
-            background-color: rgba(255, 255, 255, 0.7); /* Glass background for cards */
-            border-radius: 12px;
-            box-shadow: 0 3px 6px rgba(0,0,0,0.2); /* Deeper shadow */
-            padding: 25px; /* Card padding */
-            margin-bottom: 25px;
-            border: 1px solid rgba(255, 255, 255, 0.3); /* Thicker border */
-            transition: transform 0.3s ease-in-out;
-            position: relative;
-            overflow: hidden;
-        }
+    .health-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4); /* Enhanced shadow */
+    }
 
-        .health-card:hover {
-            transform: translateY(-7px);
-            box-shadow: 0 6px 12px rgba(0,0,0,0.3);
-        }
- /* Button effect to make better the interface  */
-         .submit-button {
-            background: linear-gradient(135deg, #7cb342, #33691e); /* Vibrant green gradient */
-            color: white;
-            padding: 14px 28px; /* More spacious button */
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
-            font-size: 18px;
-            text-transform: uppercase; /* Make text bolder */
-            letter-spacing: 1px; /* Spread out letters slightly */
-            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out; /* Animate transformation and shadow */
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3); /* Define depth and range of the shadow */
-        }
+    /* Button effect to make better the interface */
+    .submit-button {
+        background: linear-gradient(135deg, #7cb342, #33691e); /* Vibrant green gradient */
+        color: white;
+        padding: 14px 28px; /* More spacious button */
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+        font-size: 18px;
+        text-transform: uppercase; /* Make text bolder */
+        letter-spacing: 1px; /* Spread out letters slightly */
+        transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out; /* Animate transformation and shadow */
+        box-shadow: 0 12px 24px rgba(0, 0, 0, 0.4); /* Define depth and range of the shadow */
+    }
 
-        /* Enhance :hover with stronger animations and vivid color shifting */
-        .submit-button:hover {
-            transform: translateY(-3px); /* Enhanced lift effect */
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4); /* Further elevation and dramatic shadow */
-            background: linear-gradient(315deg, #33691e, #7cb342); /* Color changes reverse */
-            /* You could additionally implement transitions on more button elements for a ripple-like reaction */
-        }
-        /* Health-focused keyframe animation */
-       @keyframes neon-glow {
-           from {
-               text-shadow: 0 0 12px #8BC34A, 0 0 22px #8BC34A; /* Healthier hue of green */
-           }
-           to {
-               text-shadow: 0 0 18px #689F38, 0 0 30px #689F38, 0 0 35px #388E3C;
-           }
-       }
-
-        /* Glowing Sidebar Icon */
-        [data-testid="stSidebar"] [aria-expanded="true"] i {
-          color: #c0ca33; /* Lighter green hue for accent */
-          transition: transform 0.3s, box-shadow 0.3s; /* Animation applied */
-            text-shadow: 0 0 15px #c0ca33;
-
-        }
-
-          /* General glowing sidebar style */
-         [data-testid="stSidebar"] {
-
-           text-shadow: 0 0 10px #8BC34A, 0 0 20px #689F38; /* Light touch for base elegance */
-
-}
-
+    /* Enhance :hover with stronger animations and vivid color shifting */
+    .submit-button:hover {
+        transform: translateY(-5px); /* Enhanced
 
         </style>
         """,
