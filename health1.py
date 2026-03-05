@@ -9,7 +9,7 @@ import easyocr
 import random
 import datetime
 import webbrowser
-import uuid  # For transaction IDs
+import uuid
 import csv
 from dataclasses import dataclass
 
@@ -916,3 +916,4 @@ if __name__ == "__main__":
     init_db()  # Initialize the database once
     populate_doctors_and_hospitals()  # Populate doctors and hospitals
     main()
+
